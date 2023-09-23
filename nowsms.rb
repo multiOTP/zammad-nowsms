@@ -1,4 +1,4 @@
-# Version 1.0.11
+# Version 1.0.12
 #
 # Webhook parameters in NowSMS : /?SmsMessageSid=@@FULLSMS@@&AccountSid=sms&From=@@SENDER@@&To=@@RECIP@@&Body=@@FULLSMS@@&IgnoreRegexp=...
 #
@@ -11,7 +11,7 @@
 # be base64 encoded inside nowsms-sms.szpm
 # (by using for example https://base64.guru/converter/encode/text)
 #
-# Copyright (c) 2021 SysCo systemes de communication sa - https://www.sysco.ch
+# Copyright (c) 2021-2023 SysCo systemes de communication sa - https://www.sysco.ch
 
 class Channel::Driver::Sms::Nowsms
   NAME = 'sms/nowsms'.freeze
@@ -29,8 +29,7 @@ class Channel::Driver::Sms::Nowsms
     begin
       if Setting.get('developer_mode') != true
         conn = Faraday.new(url: options[:gateway])
-        conn.basic_auth(options[:account_id], options[:token])
-        response = conn.get("/", { :PhoneNumber => attr[:recipient].remove(/\D/), :Text => attr[:message]})
+        response = conn.get("/", { :User => options[:account_id], :Password => options[:token], :PhoneNumber => attr[:recipient].remove(/\D/), :Text => attr[:message]})
         raise response.body if !response.body.match?('Message Submitted')
       end
 
